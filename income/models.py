@@ -8,5 +8,5 @@ class Income(models.Model):
     category = models.CharField(max_length=255)
     description = models.TextField(max_length=255, null=True, blank=True)
 
-    def __str__(self) -> str:
-        return super().__str__()
+    def __str__(self):
+        return self.text
