@@ -4,7 +4,7 @@ from django.db import models
 class Expense(models.Model):
     text = models.CharField(max_length=255)
     amount = models.IntegerField(default=255)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(auto_now_add=True) 
     category = models.CharField(max_length=255)
     description = models.TextField(max_length=255, null=True, blank=True)
 
