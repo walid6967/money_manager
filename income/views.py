@@ -1,9 +1,11 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from django.db.models import Sum
 from rest_framework import status
 from .models import Income
 from .serializers import IncomeSerializer
 from rest_framework.permissions import IsAuthenticated
+from expense.models import Expense
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -91,5 +93,27 @@ def income_delete(request, pk):
         return Response({"status": "Income deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
     except Income.DoesNotExist:
         return Response({"error": "Income not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def balance_view(request):
+    try:
+        # Sum of all income amounts (only those not deleted)
+        total_income = Income.objects.filter(is_deleted=False).aggregate(total=Sum('amount'))['total'] or 0
+
+        # Sum of all expense amounts (only those not deleted)
+        total_expense = Expense.objects.filter(is_deleted=False).aggregate(total=Sum('amount'))['total'] or 0
+
+        # Calculate balance
+        balance = total_income - total_expense
+
+        return Response({
+            "total_income": total_income,
+            "total_expense": total_expense,
+            "balance": balance
+        }, status=status.HTTP_200_OK)
+
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
