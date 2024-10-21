@@ -100,20 +100,13 @@ def income_delete(request, pk):
 @permission_classes([IsAuthenticated])
 def balance_view(request):
     try:
-        # Sum of all income amounts (only those not deleted)
         total_income = Income.objects.filter(is_deleted=False).aggregate(total=Sum('amount'))['total'] or 0
-
-        # Sum of all expense amounts (only those not deleted)
         total_expense = Expense.objects.filter(is_deleted=False).aggregate(total=Sum('amount'))['total'] or 0
-
-        # Calculate balance
         balance = total_income - total_expense
-
         return Response({
             "total_income": total_income,
             "total_expense": total_expense,
             "balance": balance
         }, status=status.HTTP_200_OK)
-
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
